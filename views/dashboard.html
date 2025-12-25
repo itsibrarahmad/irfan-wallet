@@ -1,0 +1,2694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Bitpro Wallet</title>
+  <style>
+    :root {
+      --primary: #0b69ff;
+      --primary-dark: #0052cc;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg-dark: #0f172a;
+      --bg-light: #f8fafc;
+      --border: #e2e8f0;
+      --text-dark: #1e293b;
+      --text-light: #64748b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Prevent background scrolling when mobile sidebar is open */
+    body.no-scroll {
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: var(--bg-dark);
+      color: white;
+      padding: 24px;
+      overflow-y: auto;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-notif-btn {
+      margin-left: auto;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      position: relative;
+      padding: 4px 6px;
+    }
+
+    .sidebar-notif-btn .badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #e74c3c;
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+    }
+
+    .sidebar h1 {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .user-info {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 32px;
+    }
+
+    .user-info .name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .user-info .role {
+      font-size: 12px;
+      color: var(--success);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .nav-section {
+      margin-bottom: 32px;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .nav-item {
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-item:hover {
+      background: rgba(11, 105, 255, 0.2);
+      color: var(--primary);
+    }
+
+    .nav-item.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .nav-item span:first-child {
+      font-size: 18px;
+    }
+
+    .logout-btn {
+      background: var(--danger);
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 6px;
+      width: 100%;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: auto;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: #dc2626;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-dark);
+    }
+
+    .sidebar.mobile-open {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 260px;
+      height: 100vh;
+      z-index: 999;
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Overlay uses opacity transition for smooth fade */
+    .sidebar-overlay {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 995;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease;
+    }
+
+    .sidebar-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      background: white;
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      border: 1px solid var(--border);
+    }
+
+    .card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-dark);
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-group {
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .info-group:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .info-label {
+      font-size: 12px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-light);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-light);
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .badge-admin {
+      background: rgba(11, 105, 255, 0.1);
+      color: var(--primary);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .feature-list {
+      list-style: none;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      font-size: 14px;
+    }
+
+    .feature-list li::before {
+      content: "✓";
+      color: var(--success);
+      font-weight: bold;
+      font-size: 16px;
+      min-width: 20px;
+    }
+
+    /* Modal and Form Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: var(--text-dark);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-light);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-dark);
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(11, 105, 255, 0.1);
+    }
+
+    .screenshot-preview {
+      margin: 16px 0;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      background: var(--bg-light);
+    }
+
+    .screenshot-preview img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+
+    .screenshot-preview.has-image {
+      border-color: var(--success);
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .file-upload-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .file-upload-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text-dark);
+    }
+
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .alert {
+      padding: 16px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-weight: 500;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { 
+        transform: translateX(400px); 
+        opacity: 0; 
+      }
+      to { 
+        transform: translateX(0); 
+        opacity: 1; 
+      }
+    }
+
+    @keyframes slideOut {
+      from { 
+        transform: translateX(0); 
+        opacity: 1; 
+      }
+      to { 
+        transform: translateX(400px); 
+        opacity: 0; 
+      }
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border-left: 4px solid var(--success);
+    }
+
+    .alert-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border-left: 4px solid var(--danger);
+    }
+
+    .alert-warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+      border-left: 4px solid var(--warning);
+    }
+
+    .waiting-message {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--danger);
+      text-align: center;
+      padding: 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: 6px;
+      margin-top: 16px;
+    }
+
+    .transaction-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: var(--bg-light);
+    }
+
+    .transaction-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .transaction-type {
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text-dark);
+    }
+
+    .transaction-status {
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .transaction-status.pending {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .transaction-status.approved {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .transaction-status.rejected {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    .transaction-amount {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 8px 0;
+    }
+
+    .transaction-date {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-bottom: 12px;
+    }
+
+    .transaction-screenshot {
+      margin-top: 12px;
+    }
+
+    .transaction-screenshot img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .transaction-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .transaction-actions button {
+      flex: 1;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.3s ease;
+    }
+
+    .transaction-actions .btn-approve {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+
+    .transaction-actions .btn-approve:hover {
+      background: var(--success);
+      color: white;
+    }
+
+    .transaction-actions .btn-reject {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .transaction-actions .btn-reject:hover {
+      background: var(--danger);
+      color: white;
+    }
+
+    .admin-transaction-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      background: white;
+    }
+
+    .admin-transaction-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .admin-transaction-user {
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .admin-transaction-email {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+
+    /* ==================== RESPONSIVE DESIGN ==================== */
+
+    /* Tablets (1024px and below) */
+    @media (max-width: 1024px) {
+      .container {
+        flex-direction: row;
+      }
+
+      .sidebar {
+        width: 220px;
+        padding: 20px;
+      }
+
+      .header {
+        padding: 16px 24px;
+      }
+
+      .header h2 {
+        font-size: 22px;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .grid {
+        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .modal-content {
+        max-width: 450px;
+        padding: 28px;
+      }
+
+      table {
+        font-size: 13px;
+      }
+
+      td, th {
+        padding: 10px;
+      }
+    }
+
+    /* Medium Tablets (769px - 768px) */
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 16px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow-y: visible;
+        display: none;
+      }
+
+      .sidebar.active {
+        display: block;
+      }
+
+      .sidebar-header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        flex-wrap: wrap;
+      }
+
+      .sidebar h1 {
+        font-size: 18px;
+      }
+
+      .user-info {
+        margin-bottom: 16px;
+        padding: 12px;
+        font-size: 12px;
+      }
+
+      .nav-section {
+        margin-bottom: 12px;
+      }
+
+      .nav-item {
+        padding: 10px 12px;
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      .main {
+        flex: 1;
+      }
+
+      .header {
+        padding: 16px;
+        position: sticky;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .header h2 {
+        font-size: 20px;
+        min-width: 100%;
+      }
+
+      .content {
+        padding: 16px;
+      }
+
+      .grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .card {
+        padding: 16px;
+        border-radius: 10px;
+      }
+
+      .card h3 {
+        font-size: 16px;
+        margin-bottom: 12px;
+      }
+
+      .stat-value {
+        font-size: 28px;
+      }
+
+      .modal-content {
+        width: 95%;
+        padding: 24px 18px;
+        max-width: 500px;
+      }
+
+      .modal-header {
+        font-size: 20px;
+        margin-bottom: 18px;
+      }
+
+      .modal-close {
+        top: 14px;
+        right: 14px;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-group input,
+      .form-group select {
+        font-size: 16px;
+        padding: 12px 14px;
+      }
+
+      .btn {
+        padding: 11px 14px;
+        font-size: 13px;
+        min-height: 44px;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table {
+        font-size: 12px;
+        min-width: 600px;
+      }
+
+      th, td {
+        padding: 10px 8px;
+      }
+
+      .logout-btn {
+        padding: 11px 14px;
+        font-size: 13px;
+      }
+
+      .transaction-item {
+        padding: 16px;
+      }
+
+      .admin-transaction-item {
+        padding: 16px;
+      }
+
+      .feature-list li {
+        font-size: 13px;
+        padding: 10px 0;
+      }
+    }
+
+    /* Small Phones (481px - 480px) */
+    @media (max-width: 480px) {
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      html, body {
+        font-size: 14px;
+      }
+
+      .container {
+        flex-direction: column;
+      }
+
+      .menu-toggle {
+        display: flex;
+        background: white;
+        border: 1px solid var(--border);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 22px;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 12px;
+        margin-bottom: 12px;
+        display: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 260px;
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        overflow-y: auto;
+        margin-bottom: 0;
+      }
+
+      .sidebar.active {
+        display: block;
+        position: relative;
+        z-index: 997;
+        transform: translateX(0);
+      }
+
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+
+      .sidebar-header {
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        gap: 8px;
+      }
+
+      .logo-icon {
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+
+      .sidebar h1 {
+        font-size: 16px;
+      }
+
+      .user-info {
+        margin-bottom: 12px;
+        padding: 10px;
+        font-size: 11px;
+      }
+
+      .user-info .name {
+        font-size: 12px;
+        word-break: break-word;
+      }
+
+      .user-info .role {
+        font-size: 10px;
+      }
+
+      .nav-section {
+        margin-bottom: 12px;
+      }
+
+      .nav-section-title {
+        font-size: 10px;
+        margin-bottom: 8px;
+      }
+
+      .nav-item {
+        padding: 10px;
+        margin-bottom: 6px;
+        font-size: 12px;
+        border-radius: 6px;
+      }
+
+      .nav-item span:first-child {
+        font-size: 16px;
+        flex-shrink: 0;
+      }
+
+      .sidebar-notif-btn {
+        font-size: 16px;
+        padding: 2px 4px;
+      }
+
+      .sidebar-notif-btn .badge {
+        font-size: 10px;
+        padding: 1px 4px;
+      }
+
+      .main {
+        flex: 1;
+      }
+
+      .header {
+        padding: 12px;
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .header h2 {
+        font-size: 18px;
+        margin: 0;
+        flex: 1;
+        min-width: 150px;
+        word-break: break-word;
+      }
+
+      .content {
+        padding: 12px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .card {
+        padding: 14px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      }
+
+      .card h3 {
+        font-size: 14px;
+        margin-bottom: 10px;
+        word-break: break-word;
+      }
+
+      .stat-value {
+        font-size: 24px;
+      }
+
+      .stat-label {
+        font-size: 11px;
+      }
+
+      .info-group {
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+      }
+
+      .info-label {
+        font-size: 11px;
+      }
+
+      .info-value {
+        font-size: 13px;
+        word-break: break-word;
+      }
+
+      .feature-list {
+        padding: 0;
+      }
+
+      .feature-list li {
+        padding: 8px 0;
+        font-size: 12px;
+      }
+
+      .feature-list li::before {
+        min-width: 16px;
+        font-size: 14px;
+      }
+
+      .modal {
+        padding: 12px;
+      }
+
+      .modal-content {
+        width: 100%;
+        padding: 20px 16px;
+        border-radius: 10px;
+        max-width: none;
+      }
+
+      .modal-header {
+        font-size: 18px;
+        margin-bottom: 16px;
+        word-break: break-word;
+      }
+
+      .modal-close {
+        font-size: 20px;
+        top: 12px;
+        right: 12px;
+      }
+
+      .form-group {
+        margin-bottom: 16px;
+      }
+
+      .form-group label {
+        font-size: 13px;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+
+      .form-group input,
+      .form-group select {
+        padding: 11px 12px;
+        font-size: 15px;
+        border-radius: 6px;
+        width: 100%;
+      }
+
+      .screenshot-preview {
+        padding: 12px;
+        margin: 12px 0;
+      }
+
+      .screenshot-preview img {
+        max-height: 150px;
+      }
+
+      .file-upload-btn {
+        padding: 11px 14px;
+        font-size: 13px;
+      }
+
+      .modal-buttons {
+        gap: 10px;
+        flex-direction: column;
+      }
+
+      .btn {
+        padding: 11px 12px;
+        font-size: 13px;
+        border-radius: 6px;
+        min-height: 44px;
+        width: 100%;
+      }
+
+      .alert {
+        padding: 12px;
+        font-size: 12px;
+        margin-bottom: 12px;
+      }
+
+      .waiting-message {
+        font-size: 14px;
+        padding: 12px;
+        margin-top: 12px;
+      }
+
+      .transaction-item {
+        padding: 12px;
+        margin-bottom: 12px;
+      }
+
+      .transaction-header {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .transaction-type {
+        font-size: 14px;
+        word-break: break-word;
+      }
+
+      .transaction-status {
+        width: fit-content;
+      }
+
+      .transaction-amount {
+        font-size: 18px;
+      }
+
+      .transaction-date {
+        font-size: 11px;
+      }
+
+      .transaction-screenshot img {
+        max-height: 150px;
+      }
+
+      .transaction-actions {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .transaction-actions button {
+        padding: 8px 10px;
+        font-size: 12px;
+        min-height: 40px;
+        width: 100%;
+      }
+
+      .admin-transaction-item {
+        padding: 14px;
+        margin-bottom: 14px;
+      }
+
+      .admin-transaction-header {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .admin-transaction-user {
+        font-size: 13px;
+        word-break: break-word;
+      }
+
+      .admin-transaction-email {
+        font-size: 11px;
+        word-break: break-all;
+      }
+
+      .admin-transaction-amount {
+        font-size: 16px;
+      }
+
+      .admin-transaction-status {
+        font-size: 10px;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table {
+        font-size: 11px;
+        min-width: 600px;
+      }
+
+      th {
+        font-size: 10px;
+        padding: 8px 6px;
+      }
+
+      td {
+        padding: 8px 6px;
+        font-size: 11px;
+      }
+
+      .badge {
+        padding: 3px 8px;
+        font-size: 10px;
+      }
+
+      .logout-btn {
+        padding: 10px 12px;
+        font-size: 12px;
+        margin-top: 12px;
+        width: 100%;
+        min-height: 44px;
+      }
+    }
+
+    /* Extra Small Phones (361px - 360px and below) */
+    @media (max-width: 360px) {
+      .sidebar {
+        width: 80vw;
+        padding: 10px;
+      }
+
+      .sidebar h1 {
+        font-size: 14px;
+      }
+
+      .sidebar-header {
+        gap: 6px;
+      }
+
+      .logo-icon {
+        font-size: 20px;
+      }
+
+      .nav-item {
+        padding: 8px;
+        font-size: 11px;
+        gap: 8px;
+      }
+
+      .nav-item span:first-child {
+        font-size: 14px;
+      }
+
+      .header h2 {
+        font-size: 16px;
+      }
+
+      .modal-content {
+        padding: 16px 12px;
+      }
+
+      .card {
+        padding: 12px;
+      }
+
+      .menu-toggle {
+        padding: 6px 10px;
+        font-size: 20px;
+      }
+
+      .stat-value {
+        font-size: 22px;
+      }
+
+      .form-group input,
+      .form-group select {
+        font-size: 16px;
+        padding: 10px 10px;
+      }
+
+      .form-group label {
+        font-size: 12px;
+      }
+
+      th {
+        font-size: 9px;
+        padding: 6px 4px;
+      }
+
+      td {
+        font-size: 10px;
+        padding: 6px 4px;
+      }
+    }
+
+    /* Landscape Mode (Tablets & Phones) */
+    @media (max-height: 600px) and (orientation: landscape) {
+      .sidebar {
+        height: auto;
+        max-height: calc(100vh - 60px);
+      }
+
+      .content {
+        max-height: calc(100vh - 60px);
+      }
+
+      .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .card {
+        padding: 12px;
+      }
+
+      .grid {
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .stat-value {
+        font-size: 24px;
+      }
+    }
+
+    /* High DPI Devices */
+    @media (-webkit-min-device-pixel-ratio: 2),
+           (min-resolution: 192dpi) {
+      .sidebar {
+        border-right: 0.5px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .header {
+        border-bottom: 0.5px solid var(--border);
+      }
+    }
+    .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+  
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">🎯</div>
+        <h1>Bitpro</h1>
+        <button id="sidebarNotifButton" class="sidebar-notif-btn" aria-label="Notifications">
+          🔔
+          <span id="sidebarNotifCount" class="badge">0</span>
+        </button>
+      </div>
+
+      <div class="user-info">
+        <div class="name" id="sidebarUserName">User</div>
+        <div class="role" id="sidebarUserRole">User</div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Main</div>
+        <div class="nav-item active" data-section="overview">
+          <span>📊</span>
+          <span>Overview</span>
+        </div>
+        <div class="nav-item" data-section="account">
+          <span>👤</span>
+          <span>Account</span>
+        </div>
+          <div class="nav-item" data-section="transactions">
+            <span>💰</span>
+            <span>Deposit & Withdraw</span>
+          </div>
+      </div>
+
+      <div class="nav-section admin-only hidden" id="adminNav">
+        <div class="nav-section-title">Administration</div>
+        <div class="nav-item" data-section="users">
+          <span>👥</span>
+          <span>All Users</span>
+          <span id="usersNotifBadge" class="badge" style="margin-left:8px; display:none; background:#e67e22;">0</span>
+        </div>
+        <div class="nav-item" data-section="admins">
+          <span>🔑</span>
+          <span>Admins</span>
+        </div>
+        <div class="nav-item" data-section="admin-transactions">
+          <span>💰</span>
+          <span>Transactions</span>
+          <span id="transactionsNotifBadge" class="badge" style="margin-left:8px; display:none; background:#e67e22;">0</span>
+        </div>
+      </div>
+
+      <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+    </div>
+
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <div class="main">
+      <div class="header">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <h2 id="pageTitle">Dashboard</h2>
+        <div style="margin-left: auto; display:flex; align-items:center; gap:10px;">
+          <button id="notifButton" class="btn" type="button" style="position:relative;">
+            🔔
+            <span id="notifCount" class="badge" style="position:absolute; top:-6px; right:-8px; display:none; background:#e74c3c; color:#fff;">0</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="content" id="content">
+        <!-- Overview Section -->
+        <div id="overviewSection">
+          <div class="grid">
+            <div class="card">
+              <div class="stat-label">Welcome</div>
+              <h3 id="welcomeName">Hello User</h3>
+              <p style="color: var(--text-light); font-size: 14px;">You are logged in as <span id="roleDisplay" class="badge badge-success">User</span></p>
+            </div>
+
+            <div class="card">
+              <div class="stat-label">Account Status</div>
+              <div class="stat-value" style="color: var(--success);">✓ Active</div>
+              <p style="color: var(--text-light); font-size: 14px;">Your account is in good standing</p>
+            </div>
+
+            <div class="card admin-only hidden" id="statsCard">
+              <div class="stat-label">Total Users</div>
+              <div class="stat-value" id="totalUsers">-</div>
+              <p style="color: var(--text-light); font-size: 14px;">Active user accounts</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Why Bitpro?</h3>
+            <ul class="feature-list">
+              <li>Bank-level security & encryption</li>
+              <li>Lightning-fast transactions</li>
+              <li>24/7 dedicated support</li>
+              <li>Multiple payment methods</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Account Section -->
+        <div id="accountSection" class="hidden">
+          <div class="card">
+            <h3>Account Information</h3>
+            <div class="info-group">
+              <div class="info-label">Full Name</div>
+              <div class="info-value" id="fullName">Loading...</div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">Email Address</div>
+              <div class="info-value" id="emailDisplay">Loading...</div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">Phone Number</div>
+              <div class="info-value" id="phoneDisplay">Loading...</div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">Easypaisa Number</div>
+              <div class="info-value" id="easypaisaDisplay">Loading...</div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">Account Role</div>
+              <div class="info-value">
+                <span class="badge" id="roleBadge">User</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+            <!-- Notifications Modal -->
+            <div id="notificationsModal" class="modal">
+              <div class="modal-content">
+                <button class="modal-close" onclick="closeModal('notificationsModal')">&times;</button>
+                <div class="modal-header">🔔 Notifications</div>
+                <div style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                  <div style="color:var(--text-light); font-size:13px;">Recent notifications</div>
+                  <div>
+                    <button class="btn btn-secondary" onclick="markAllNotificationsRead()">Mark all read</button>
+                  </div>
+                </div>
+                <div id="notificationsList" style="max-height:400px; overflow-y:auto;">
+                  <p style="color:var(--text-light); text-align:center;">Loading...</p>
+                </div>
+              </div>
+            </div>
+
+        <!-- Users Section (Admin Only) -->
+        <div id="usersSection" class="hidden">
+          <div class="card">
+            <h3>All Users</h3>
+            <div class="table-container">
+              <table id="usersTable">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Phone</th>
+                    <th>Deposits</th>
+                    <th>Withdrawals</th>
+                    <th>Deposited (PKR)</th>
+                    <th>Withdrawn (PKR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="8" style="text-align: center; color: var(--text-light);">Loading users...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admins Section (Admin Only) -->
+        <div id="adminsSection" class="hidden">
+          <div class="card">
+            <h3>Administrator Accounts</h3>
+            <div class="table-container">
+              <table id="adminsTable">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="3" style="text-align: center; color: var(--text-light);">Loading admins...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Transactions Section -->
+        <div id="adminTransactionsSection" class="hidden">
+          <div class="card">
+            <h3>Pending Transactions</h3>
+            <div id="adminTransactionsList" style="max-height: 800px; overflow-y: auto;">
+              <p style="color: var(--text-light); text-align: center; padding: 20px;">Loading transactions...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transactions Section (Deposit & Withdrawal) -->
+        <div id="transactionsSection" class="hidden">
+          <div class="grid">
+            <div class="card" style="cursor: pointer; text-align: center;" onclick="openDepositModal()">
+              <div style="font-size: 48px; margin-bottom: 12px;">💳</div>
+              <h3 style="color: var(--primary);">Deposit</h3>
+              <p style="color: var(--text-light); font-size: 14px;">Add funds to your account</p>
+            </div>
+            <div class="card" style="cursor: pointer; text-align: center;" onclick="openWithdrawalModal()">
+              <div style="font-size: 48px; margin-bottom: 12px;">🏦</div>
+              <h3 style="color: var(--success);">Withdrawal</h3>
+              <p style="color: var(--text-light); font-size: 14px;">Request to withdraw funds</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Transaction History</h3>
+            <div id="transactionsList" style="max-height: 500px; overflow-y: auto;">
+              <p style="color: var(--text-light); text-align: center; padding: 20px;">Loading transactions...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deposit Modal -->
+  <div id="depositModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('depositModal')">&times;</button>
+      <div class="modal-header">💳 Deposit Funds</div>
+      
+      <!-- Bank Account Information -->
+      <div style="background: #f0f7ff; border-left: 4px solid var(--primary); padding: 16px; border-radius: 6px; margin-bottom: 24px;">
+        <h4 style="margin: 0 0 12px 0; color: var(--text-dark); font-size: 14px;">💰 Send Payment To:</h4>
+        
+        <div style="display: grid; gap: 12px;">
+          <!-- Easypaisa -->
+          <div style="padding: 12px; background: white; border-radius: 6px; border: 1px solid #e0e7f1;">
+            <div style="font-weight: 600; color: var(--text-dark); font-size: 13px; margin-bottom: 4px;">📱 Easypaisa</div>
+            <div style="font-family: monospace; font-size: 14px; color: var(--primary); font-weight: 700; padding: 8px; background: #f8fafc; border-radius: 4px; word-break: break-all;">
+              03339417136
+            </div>
+            <button onclick="copyToClipboard('')" style="background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-top: 6px; font-weight: 600;">Copy</button>
+          </div>
+
+          <!-- JazzCash -->
+          <div style="padding: 12px; background: white; border-radius: 6px; border: 1px solid #e0e7f1;">
+            <div style="font-weight: 600; color: var(--text-dark); font-size: 13px; margin-bottom: 4px;">💳 JazzCash</div>
+            <div style="font-family: monospace; font-size: 14px; color: var(--primary); font-weight: 700; padding: 8px; background: #f8fafc; border-radius: 4px; word-break: break-all;">
+              03339417136
+            </div>
+            <button onclick="copyToClipboard('03339417136')" style="background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-top: 6px; font-weight: 600;">Copy</button>
+          </div>
+
+          <!-- Bank Account -->
+          <div style="padding: 12px; background: white; border-radius: 6px; border: 1px solid #e0e7f1;">
+            <div style="font-weight: 600; color: var(--text-dark); font-size: 13px; margin-bottom: 4px;">🏦 Bank Account (IBAN)</div>
+            <div style="font-family: monospace; font-size: 14px; color: var(--primary); font-weight: 700; padding: 8px; background: #f8fafc; border-radius: 4px; word-break: break-all;">
+              PK73BAHL2062098100114101
+            </div>
+            <button onclick="copyToClipboard('PK73BAHL2062098100114101')" style="background: var(--primary); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-top: 6px; font-weight: 600;">Copy</button>
+          </div>
+        </div>
+
+        <p style="font-size: 12px; color: var(--text-light); margin: 12px 0 0 0; padding-top: 12px; border-top: 1px solid #e0e7f1;">
+          ✓ After sending payment, upload the receipt/screenshot below
+        </p>
+      </div>
+      
+      <div id="depositForm">
+        <div class="form-group">
+          <label>Payment Screenshot *</label>
+          <div class="screenshot-preview" id="depositPreview">
+            <p style="color: var(--text-light); margin: 0;">Click below to upload payment proof</p>
+          </div>
+          <input type="file" id="depositScreenshot" class="file-input" accept="image/*">
+          <button class="file-upload-btn" onclick="document.getElementById('depositScreenshot').click()">Choose Screenshot</button>
+        </div>
+
+        <div class="form-group">
+          <label>Amount (PKR) *</label>
+          <input type="number" id="depositAmount" placeholder="Enter amount" min="100" step="100">
+        </div>
+
+        <div class="modal-buttons">
+          <button class="btn btn-secondary" onclick="closeModal('depositModal')">Cancel</button>
+          <button class="btn btn-primary" id="submitDeposit" onclick="submitDeposit()">Submit Deposit</button>
+        </div>
+      </div>
+
+      <div id="depositWaiting" class="hidden">
+        <div class="waiting-message">⏳ Your deposit request has been submitted. Please wait while the admin verifies your payment. This typically takes 5 minutes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Withdrawal Modal -->
+  <div id="withdrawalModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('withdrawalModal')">&times;</button>
+      <div class="modal-header">🏦 Withdrawal Request</div>
+      
+      <div id="withdrawalForm">
+        <div class="form-group">
+          <label>Amount (PKR) *</label>
+          <input type="number" id="withdrawalAmount" placeholder="Enter amount" min="100" step="100">
+        </div>
+
+        <div class="modal-buttons">
+          <button class="btn btn-secondary" onclick="closeModal('withdrawalModal')">Cancel</button>
+          <button class="btn btn-primary" id="submitWithdrawal" onclick="submitWithdrawal()">Submit Request</button>
+        </div>
+      </div>
+
+      <div id="withdrawalWaiting" class="hidden">
+        <div class="waiting-message">⏳ Your withdrawal request has been submitted. Please wait while the admin processes your request. This typically takes 5 minutes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Approval Modal with Optional Screenshot Upload -->
+  <div id="approvalModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('approvalModal')">&times;</button>
+      <div class="modal-header">✓ Approve Transaction</div>
+      
+      <div style="margin-bottom: 20px;">
+        <p style="color: var(--text-light); font-size: 14px;">You can optionally upload a screenshot/proof when approving this transaction. This is optional.</p>
+      </div>
+
+      <div class="form-group">
+        <label>Payment Proof (Optional)</label>
+        <div class="screenshot-preview" id="approvalPreview">
+          <p style="color: var(--text-light); margin: 0;">Click below to upload proof (optional)</p>
+        </div>
+        <input type="file" id="approvalScreenshot" class="file-input" accept="image/*">
+        <button class="file-upload-btn" onclick="document.getElementById('approvalScreenshot').click()">Choose Screenshot</button>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="closeModal('approvalModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitAdminApproval()">✓ Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Detail Modal (Admin Only) -->
+  <div id="userDetailModal" class="modal">
+    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+      <button class="modal-close" onclick="closeModal('userDetailModal')">&times;</button>
+      <div class="modal-header">👤 User Details</div>
+      
+      <div id="userDetailContent">
+        <p style="color: var(--text-light); text-align: center;">Loading...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize UI based on role
+    async function init() {
+      try {
+        const res = await fetch('/api/user', { credentials: 'same-origin' });
+        if (!res.ok) return window.location.href = '/login';
+        
+        const data = await res.json();
+        const isAdmin = data.role === 'admin';
+
+        // Update sidebar
+        document.getElementById('sidebarUserName').textContent = data.firstName;
+        document.getElementById('sidebarUserRole').textContent = isAdmin ? 'Administrator' : 'User';
+        
+        // Show/hide admin sections
+        document.querySelectorAll('.admin-only').forEach(el => {
+          el.classList.toggle('hidden', !isAdmin);
+        });
+
+        // Hide deposit/withdrawal cards for admins (only users can deposit/withdraw)
+        if (isAdmin) {
+          const depositWithdrawCards = document.querySelectorAll('#transactionsSection > .grid > .card');
+          depositWithdrawCards.forEach(card => card.style.display = 'none');
+        }
+
+        // Update welcome
+        document.getElementById('welcomeName').textContent = `Hello, ${data.firstName}`;
+        document.getElementById('roleDisplay').textContent = isAdmin ? 'Administrator' : 'User';
+        document.getElementById('roleDisplay').className = isAdmin ? 'badge badge-admin' : 'badge badge-success';
+        
+        // Update account section
+        document.getElementById('fullName').textContent = `${data.firstName} ${data.lastName}`;
+        document.getElementById('emailDisplay').textContent = data.email;
+        document.getElementById('phoneDisplay').textContent = data.phone;
+        document.getElementById('easypaisaDisplay').textContent = data.easypaisa;
+        
+        const roleBadge = document.getElementById('roleBadge');
+        roleBadge.textContent = isAdmin ? 'Administrator' : 'User';
+        roleBadge.className = isAdmin ? 'badge badge-admin' : 'badge badge-success';
+
+        // Load admin stats
+        if (isAdmin) {
+          loadAdminStats();
+        }
+        // Load notification count for current user/admin
+        updateNotificationCount();
+        // Poll periodically
+        setInterval(updateNotificationCount, 30000);
+        // Load notification summary (by type) for admin-specific badges
+        if (isAdmin) await updateNotificationSummary();
+      } catch (e) {
+        console.error('Error:', e);
+      }
+    }
+
+    // Notifications: fetch count and list, mark read
+    async function updateNotificationCount() {
+      try {
+        const res = await fetch('/api/notifications/count', { credentials: 'same-origin' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const countEl = document.getElementById('notifCount');
+        const sidebarCountEl = document.getElementById('sidebarNotifCount');
+        if (data.count && data.count > 0) {
+          countEl.style.display = 'inline-block';
+          countEl.textContent = data.count > 99 ? '99+' : data.count;
+          if (sidebarCountEl) { sidebarCountEl.style.display = 'inline-block'; sidebarCountEl.textContent = data.count > 99 ? '99+' : data.count; }
+        } else {
+          countEl.style.display = 'none';
+          if (sidebarCountEl) sidebarCountEl.style.display = 'none';
+        }
+      } catch (e) { console.error('Error getting notif count', e); }
+    }
+
+    // Fetch summary and populate specific UI badges (new users, transactions)
+    async function updateNotificationSummary() {
+      try {
+        const res = await fetch('/api/notifications/summary', { credentials: 'same-origin' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const usersBadge = document.getElementById('usersNotifBadge');
+        const txBadge = document.getElementById('transactionsNotifBadge');
+        const newUserCount = (data.byType && data.byType.new_user) ? data.byType.new_user : 0;
+        const txCount = (data.byType && data.byType.transaction) ? data.byType.transaction : 0;
+
+        if (newUserCount > 0) {
+          usersBadge.style.display = 'inline-block';
+          usersBadge.textContent = newUserCount > 99 ? '99+' : newUserCount;
+        } else {
+          usersBadge.style.display = 'none';
+        }
+
+        if (txCount > 0) {
+          txBadge.style.display = 'inline-block';
+          txBadge.textContent = txCount > 99 ? '99+' : txCount;
+        } else {
+          txBadge.style.display = 'none';
+        }
+      } catch (e) {
+        console.error('Error fetching notification summary', e);
+      }
+    }
+
+    document.getElementById('notifButton').addEventListener('click', async () => {
+      // open modal and load notifications
+      document.getElementById('notificationsModal').classList.add('active');
+      await loadNotifications();
+    });
+
+    // Sidebar/mobile notif button opens notifications modal too
+    const sidebarNotifButton = document.getElementById('sidebarNotifButton');
+    if (sidebarNotifButton) {
+      sidebarNotifButton.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        document.getElementById('notificationsModal').classList.add('active');
+        await loadNotifications();
+        // close mobile sidebar if open
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar && sidebar.classList.contains('mobile-open')) {
+          sidebar.classList.remove('mobile-open');
+          document.getElementById('sidebarOverlay').classList.remove('active');
+          document.body.classList.remove('no-scroll');
+        }
+      });
+    }
+
+    // Nav-item badges open filtered notifications
+    const usersNavBadge = document.getElementById('usersNotifBadge');
+    if (usersNavBadge) {
+      usersNavBadge.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        document.getElementById('notificationsModal').classList.add('active');
+        await loadNotifications('new_user');
+      });
+    }
+
+    const txNavBadge = document.getElementById('transactionsNotifBadge');
+    if (txNavBadge) {
+      txNavBadge.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        document.getElementById('notificationsModal').classList.add('active');
+        await loadNotifications('transaction');
+      });
+    }
+
+    async function loadNotifications(type) {
+      try {
+        const res = await fetch('/api/notifications', { credentials: 'same-origin' });
+        const container = document.getElementById('notificationsList');
+        if (!res.ok) {
+          container.innerHTML = '<p style="color:var(--text-light); text-align:center;">Could not load notifications.</p>';
+          return;
+        }
+        let items = await res.json();
+        if (type) items = items.filter(n => n.type === type);
+        if (!items || !items.length) {
+          container.innerHTML = '<p style="color:var(--text-light); text-align:center;">No notifications.</p>';
+          updateNotificationCount();
+          return;
+        }
+        container.innerHTML = items.map(n => `
+          <div style="padding:8px; border-bottom:1px solid rgba(255,255,255,0.03); display:flex; justify-content:space-between; align-items:center;">
+            <div style="flex:1; margin-right:8px;">
+              <div style="font-size:13px;">${escapeHtml(n.message)}</div>
+              <div style="color:var(--text-light); font-size:12px;">${new Date(n.createdAt).toLocaleString()}</div>
+            </div>
+            <div style="min-width:80px; text-align:right;">
+              ${n.read ? '<span class="badge badge-success">Read</span>' : `<button class="btn btn-primary" onclick="markNotificationRead('${n._id}')">Mark read</button>`}
+            </div>
+          </div>
+        `).join('');
+        updateNotificationCount();
+      } catch (e) { console.error('Error loading notifications', e); }
+    }
+
+    async function markNotificationRead(id) {
+      try {
+        const res = await fetch('/api/notifications/' + id + '/mark-read', { method: 'PATCH', credentials: 'same-origin' });
+        if (res.ok) {
+          await loadNotifications();
+          updateNotificationCount();
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    async function markAllNotificationsRead() {
+      try {
+        const res = await fetch('/api/notifications/mark-all', { method: 'PATCH', credentials: 'same-origin' });
+        if (res.ok) {
+          await loadNotifications();
+          updateNotificationCount();
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    // Mark all unread notifications of a specific type as read for current user
+    async function markNotificationsByType(type) {
+      if (!type) return;
+      try {
+        const res = await fetch('/api/notifications/mark-type', {
+          method: 'PATCH',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type })
+        });
+        if (res.ok) {
+          updateNotificationCount();
+          updateNotificationSummary();
+        }
+      } catch (e) { console.error('Error marking notifications by type', e); }
+    }
+
+    // utility to escape HTML in messages
+    function escapeHtml(unsafe) {
+      return unsafe
+        ? unsafe.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;')
+        : '';
+    }
+
+    async function loadAdminStats() {
+      try {
+        const res = await fetch('/api/users', { credentials: 'same-origin' });
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('totalUsers').textContent = data.length || 0;
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    async function loadUsersTable() {
+      try {
+        const res = await fetch('/api/users', { credentials: 'same-origin' });
+        if (res.ok) {
+          const users = await res.json();
+          const tbody = document.querySelector('#usersTable tbody');
+          tbody.innerHTML = users.map(u => `
+            <tr onclick="openUserDetail('${u._id}')" style="cursor: pointer;">
+              <td>${u.firstName} ${u.lastName}</td>
+              <td>${u.email}</td>
+              <td><span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-success'}">${u.role || 'user'}</span></td>
+              <td>${u.phone}</td>
+              <td style="text-align: center; font-weight: 700;">${u.deposits || 0}</td>
+              <td style="text-align: center; font-weight: 700;">${u.withdrawals || 0}</td>
+              <td style="text-align: right; font-weight: 700;">PKR ${u.depositsAmount ? u.depositsAmount.toLocaleString() : 0}</td>
+              <td style="text-align: right; font-weight: 700;">PKR ${u.withdrawalsAmount ? u.withdrawalsAmount.toLocaleString() : 0}</td>
+              <td>
+                <button class="btn ${u.isActive ? 'btn-secondary' : 'btn-primary'}" onclick="event.stopPropagation(); toggleUserActive('${u._id}', ${u.isActive})">
+                  ${u.isActive ? 'Deactivate' : 'Activate'}
+                </button>
+              </td>
+            </tr>
+          `).join('');
+          // Mark new_user notifications as read for admins when opening Users
+          markNotificationsByType('new_user').catch(() => {});
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    async function loadAdminsTable() {
+      try {
+        const res = await fetch('/api/admins', { credentials: 'same-origin' });
+        if (res.ok) {
+          const admins = await res.json();
+          const tbody = document.querySelector('#adminsTable tbody');
+          tbody.innerHTML = admins.map(a => `
+            <tr>
+              <td>${a.firstName} ${a.lastName}</td>
+              <td>${a.email}</td>
+              <td><span class="badge badge-admin">Active</span></td>
+            </tr>
+          `).join('');
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    // Navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        
+        document.getElementById('overviewSection').classList.add('hidden');
+        document.getElementById('accountSection').classList.add('hidden');
+        document.getElementById('usersSection').classList.add('hidden');
+        document.getElementById('adminsSection').classList.add('hidden');
+        document.getElementById('transactionsSection').classList.add('hidden');
+        document.getElementById('adminTransactionsSection').classList.add('hidden');
+        
+        const section = this.dataset.section;
+        const sectionTitle = section === 'admin-transactions' ? 'Pending Transactions' : (section.charAt(0).toUpperCase() + section.slice(1));
+        document.getElementById('pageTitle').textContent = sectionTitle;
+        
+        switch(section) {
+          case 'overview':
+            document.getElementById('overviewSection').classList.remove('hidden');
+            break;
+          case 'account':
+            document.getElementById('accountSection').classList.remove('hidden');
+            break;
+          case 'users':
+            document.getElementById('usersSection').classList.remove('hidden');
+            loadUsersTable();
+            // Mark user-signup notifications as read for admins when opening Users
+            markNotificationsByType('new_user').catch(() => {});
+            break;
+          case 'admins':
+            document.getElementById('adminsSection').classList.remove('hidden');
+            loadAdminsTable();
+            break;
+          case 'transactions':
+            document.getElementById('transactionsSection').classList.remove('hidden');
+            loadTransactions();
+            break;
+          case 'admin-transactions':
+            document.getElementById('adminTransactionsSection').classList.remove('hidden');
+            loadAdminTransactions();
+            // Mark transaction notifications as read for admins when opening Transactions
+            markNotificationsByType('transaction').catch(() => {});
+            break;
+        }
+      });
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await fetch('/logout', { credentials: 'same-origin' });
+      window.location.href = '/login';
+    });
+
+    // Copy to Clipboard Function
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Show success feedback
+        const alert = document.createElement('div');
+        alert.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: var(--success);
+          color: white;
+          padding: 12px 20px;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 14px;
+          z-index: 10000;
+          animation: slideIn 0.3s ease;
+        `;
+        alert.textContent = '✓ Copied to clipboard!';
+        document.body.appendChild(alert);
+        
+        setTimeout(() => {
+          alert.style.animation = 'slideOut 0.3s ease';
+          setTimeout(() => alert.remove(), 300);
+        }, 2000);
+      }).catch(() => {
+        alert('Failed to copy. Please try again.');
+      });
+    }
+
+    // Transaction Modal Functions
+    function openDepositModal() {
+      document.getElementById('depositModal').classList.add('active');
+    }
+
+    function openWithdrawalModal() {
+      document.getElementById('withdrawalModal').classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+      if (modalId === 'depositModal') {
+        document.getElementById('depositForm').classList.remove('hidden');
+        document.getElementById('depositWaiting').classList.add('hidden');
+        document.getElementById('depositScreenshot').value = '';
+        document.getElementById('depositAmount').value = '';
+        document.getElementById('depositPreview').innerHTML = '<p style="color: var(--text-light); margin: 0;">Click below to upload payment proof</p>';
+        document.getElementById('depositPreview').classList.remove('has-image');
+      } else if (modalId === 'withdrawalModal') {
+        document.getElementById('withdrawalForm').classList.remove('hidden');
+        document.getElementById('withdrawalWaiting').classList.add('hidden');
+        document.getElementById('withdrawalAmount').value = '';
+      }
+    }
+
+    // Handle screenshot preview for deposit
+    document.getElementById('depositScreenshot').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          document.getElementById('depositPreview').innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+          document.getElementById('depositPreview').classList.add('has-image');
+          window.depositScreenshotData = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Handle screenshot preview for admin approval
+    document.getElementById('approvalScreenshot').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          document.getElementById('approvalPreview').innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+          document.getElementById('approvalPreview').classList.add('has-image');
+          window.approvalScreenshotData = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+
+    // Submit Deposit
+    async function submitDeposit() {
+      const amount = document.getElementById('depositAmount').value;
+      const screenshot = window.depositScreenshotData;
+
+      if (!amount || !screenshot) {
+        alert('Please provide both screenshot and amount');
+        return;
+      }
+
+      if (amount < 100) {
+        alert('Minimum deposit amount is 100 PKR');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/transactions', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'deposit',
+            amount: parseInt(amount),
+            screenshot: screenshot
+          })
+        });
+
+        if (res.ok) {
+          document.getElementById('depositForm').classList.add('hidden');
+          document.getElementById('depositWaiting').classList.remove('hidden');
+          
+          // Reload transactions after 5 seconds
+          setTimeout(() => {
+            closeModal('depositModal');
+            loadTransactions();
+          }, 5000);
+        } else {
+          alert('Error submitting deposit request');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error submitting deposit');
+      }
+    }
+
+    // Submit Withdrawal
+    async function submitWithdrawal() {
+      const amount = document.getElementById('withdrawalAmount').value;
+
+      if (!amount) {
+        alert('Please provide amount');
+        return;
+      }
+
+      if (amount < 100) {
+        alert('Minimum withdrawal amount is 100 PKR');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/transactions', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'withdrawal',
+            amount: parseInt(amount),
+            screenshot: null
+          })
+        });
+
+        if (res.ok) {
+          document.getElementById('withdrawalForm').classList.add('hidden');
+          document.getElementById('withdrawalWaiting').classList.remove('hidden');
+          
+          // Reload transactions after 5 seconds
+          setTimeout(() => {
+            closeModal('withdrawalModal');
+            loadTransactions();
+          }, 5000);
+        } else {
+          alert('Error submitting withdrawal request');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error submitting withdrawal');
+      }
+    }
+
+    // Load user transactions
+    async function loadTransactions() {
+      try {
+        const res = await fetch('/api/transactions', { credentials: 'same-origin' });
+        if (res.ok) {
+          const transactions = await res.json();
+          const html = transactions.length > 0 
+            ? transactions.map(t => `
+              <div class="transaction-item">
+                <div class="transaction-header">
+                  <div class="transaction-type">${t.type === 'deposit' ? '💳 Deposit' : '🏦 Withdrawal'}</div>
+                  <div class="transaction-status ${t.status}">${t.status}</div>
+                </div>
+                <div class="transaction-amount">PKR ${t.amount}</div>
+                <div class="transaction-date">${new Date(t.createdAt).toLocaleDateString()}</div>
+                ${t.screenshot ? `
+                  <div class="transaction-screenshot">
+                    <img src="${t.screenshot}" alt="Transaction proof">
+                  </div>
+                ` : ''}
+                ${t.status === 'rejected' && t.adminComment ? `
+                  <p style="color: var(--danger); margin-top: 12px; font-size: 13px;"><strong>Reason:</strong> ${t.adminComment}</p>
+                ` : ''}
+              </div>
+            `).join('')
+            : '<p style="color: var(--text-light); text-align: center; padding: 20px;">No transactions yet</p>';
+          
+          document.getElementById('transactionsList').innerHTML = html;
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('transactionsList').innerHTML = '<p style="color: var(--danger);">Error loading transactions</p>';
+      }
+    }
+
+    // Load admin transactions (pending only)
+    async function loadAdminTransactions() {
+      try {
+        const res = await fetch('/api/admin/transactions?status=pending', { credentials: 'same-origin' });
+        if (res.ok) {
+          const transactions = await res.json();
+          const html = transactions.length > 0 
+            ? transactions.map(t => `
+              <div class="admin-transaction-item">
+                <div class="admin-transaction-header">
+                  <div>
+                    <div class="admin-transaction-user">${t.userId.firstName} ${t.userId.lastName}</div>
+                    <div class="admin-transaction-email">${t.userId.email} • ${t.userId.phone}</div>
+                  </div>
+                  <div class="transaction-status ${t.status}">${t.status}</div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                  <div>
+                    <div class="info-label">Transaction Type</div>
+                    <div class="info-value">${t.type === 'deposit' ? '💳 Deposit' : '🏦 Withdrawal'}</div>
+                  </div>
+                  <div>
+                    <div class="info-label">Amount</div>
+                    <div class="info-value">PKR ${t.amount}</div>
+                  </div>
+                </div>
+
+                ${t.screenshot ? `
+                  <div class="transaction-screenshot">
+                    <img src="${t.screenshot}" alt="Transaction proof" style="max-height: 300px;">
+                  </div>
+                ` : ''}
+
+                <div class="transaction-actions">
+                  <button class="btn-approve" onclick="approveTransaction('${t._id}')">✓ Approve</button>
+                  <button class="btn-reject" onclick="rejectTransaction('${t._id}')">✗ Reject</button>
+                </div>
+              </div>
+            `).join('')
+            : '<p style="color: var(--text-light); text-align: center; padding: 20px;">No pending transactions</p>';
+          
+          document.getElementById('adminTransactionsList').innerHTML = html;
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('adminTransactionsList').innerHTML = '<p style="color: var(--danger);">Error loading transactions</p>';
+      }
+    }
+
+    // Approve transaction (with optional screenshot upload)
+    async function approveTransaction(transactionId) {
+      // Store transaction ID for use in approval modal
+      window.approvingTransactionId = transactionId;
+      document.getElementById('approvalModal').classList.add('active');
+    }
+
+    // Submit admin approval with optional screenshot
+    async function submitAdminApproval() {
+      const transactionId = window.approvingTransactionId;
+      const screenshot = window.approvalScreenshotData || null;
+      
+      try {
+        const res = await fetch(`/api/admin/transactions/${transactionId}`, {
+          method: 'PATCH',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'approved', screenshot: screenshot })
+        });
+
+        if (res.ok) {
+          alert('✓ Transaction approved! User has been notified.');
+          closeModal('approvalModal');
+          loadAdminTransactions();
+        } else {
+          alert('Error approving transaction');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error approving transaction');
+      }
+    }
+
+    // Reject transaction
+    async function rejectTransaction(transactionId) {
+      const reason = prompt('Enter reason for rejection:');
+      if (reason === null) return;
+
+      try {
+        const res = await fetch(`/api/admin/transactions/${transactionId}`, {
+          method: 'PATCH',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'rejected', comment: reason })
+        });
+
+        if (res.ok) {
+          alert('✗ Transaction rejected. User has been notified.');
+          loadAdminTransactions();
+        } else {
+          alert('Error rejecting transaction');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error rejecting transaction');
+      }
+    }
+
+    // Open user detail modal (admin-only)
+    async function openUserDetail(userId) {
+      try {
+        const res = await fetch(`/api/admin/users/${userId}`, { credentials: 'same-origin' });
+        if (!res.ok) {
+          alert('Error loading user details');
+          return;
+        }
+        const data = await res.json();
+        const { user, transactions, summary } = data;
+        
+        // Render user detail
+        const html = `
+          <div style="margin-bottom: 20px;">
+            <h3>${user.firstName} ${user.lastName}</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px;">
+              <div>
+                <div class="info-label">Email</div>
+                <div class="info-value" style="word-break: break-all;">${user.email}</div>
+              </div>
+              <div>
+                <div class="info-label">Phone</div>
+                <div class="info-value">${user.phone}</div>
+              </div>
+              <div>
+                <div class="info-label">Easypaisa</div>
+                <div class="info-value">${user.easypaisa}</div>
+              </div>
+              <div>
+                <div class="info-label">Status</div>
+                <div class="info-value">
+                  <span class="badge ${user.isActive ? 'badge-success' : 'badge-secondary'}" style="background: ${user.isActive ? '#27ae60' : '#95a5a6'};">
+                    ${user.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <div class="info-label">Role</div>
+                <div class="info-value"><span class="badge ${user.role === 'admin' ? 'badge-admin' : 'badge-success'}">${user.role}</span></div>
+              </div>
+              <div>
+                <div class="info-label">Password Hash (First 20 chars)</div>
+                <div class="info-value" style="word-break: break-all; font-size: 11px;">${user.passwordHash ? user.passwordHash.substring(0, 20) + '...' : 'N/A'}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 20px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 6px;">
+            <h4 style="margin-top: 0;">Transaction Summary</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+              <div>
+                <div class="info-label">Total Deposits</div>
+                <div class="info-value" style="color: #27ae60;">${summary.totalDepositAmount ? 'PKR ' + summary.totalDepositAmount.toLocaleString() : '0'}</div>
+                <div style="color: var(--text-light); font-size: 12px;">(${summary.totalDeposits} transactions)</div>
+              </div>
+              <div>
+                <div class="info-label">Total Withdrawals</div>
+                <div class="info-value" style="color: #e74c3c;">${summary.totalWithdrawalAmount ? 'PKR ' + summary.totalWithdrawalAmount.toLocaleString() : '0'}</div>
+                <div style="color: var(--text-light); font-size: 12px;">(${summary.totalWithdrawals} transactions)</div>
+              </div>
+              <div>
+                <div class="info-label">Net Balance</div>
+                <div class="info-value" style="color: ${summary.isProfit ? '#27ae60' : '#e74c3c'}; font-weight: 700;">
+                  ${summary.isProfit ? '✓ Profit' : '✗ Loss'}: PKR ${Math.abs(summary.netBalance).toLocaleString()}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 20px;">
+            <h4>Recent Transactions</h4>
+            <div style="max-height: 300px; overflow-y: auto;">
+              ${transactions.length > 0 ? transactions.slice(0, 10).map(t => `
+                <div style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div style="font-size: 13px;">${t.type === 'deposit' ? '💳 Deposit' : '🏦 Withdrawal'} - PKR ${t.amount}</div>
+                    <div style="color: var(--text-light); font-size: 11px;">${new Date(t.createdAt).toLocaleDateString()}</div>
+                  </div>
+                  <span class="badge ${t.status === 'approved' ? 'badge-success' : (t.status === 'pending' ? 'badge-secondary' : 'badge-danger')}" style="min-width: 60px; text-align: center;">
+                    ${t.status}
+                  </span>
+                </div>
+              `).join('') : '<p style="color: var(--text-light); text-align: center;">No transactions</p>'}
+            </div>
+          </div>
+
+          <div class="modal-buttons">
+            <button class="btn btn-secondary" onclick="closeModal('userDetailModal')">Close</button>
+            <button class="btn ${user.isActive ? 'btn-danger' : 'btn-primary'}" onclick="toggleUserActive('${user._id}', ${user.isActive})">
+              ${user.isActive ? 'Deactivate User' : 'Activate User'}
+            </button>
+          </div>
+        `;
+        
+        document.getElementById('userDetailContent').innerHTML = html;
+        document.getElementById('userDetailModal').classList.add('active');
+      } catch (err) {
+        console.error('Error loading user detail:', err);
+        alert('Error loading user details');
+      }
+    }
+
+    // Toggle user active status
+    async function toggleUserActive(userId, isCurrentlyActive) {
+      const action = isCurrentlyActive ? 'deactivate' : 'activate';
+      if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+
+      try {
+        const res = await fetch(`/api/admin/users/${userId}/toggle-active`, {
+          method: 'PATCH',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          alert(`User ${action}d successfully`);
+          closeModal('userDetailModal');
+          loadUsersTable();
+        } else {
+          alert('Error toggling user status');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Error toggling user status');
+      }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('depositModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal('depositModal');
+    });
+
+    document.getElementById('withdrawalModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal('withdrawalModal');
+    });
+
+    // Update navigation to handle transactions section
+    const originalNavListener = document.querySelectorAll('.nav-item');
+    originalNavListener.forEach(item => {
+      if (item.dataset.section === 'transactions') {
+        item.addEventListener('click', function() {
+          document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          
+          document.getElementById('overviewSection').classList.add('hidden');
+          document.getElementById('accountSection').classList.add('hidden');
+
+      
+          document.getElementById('usersSection').classList.add('hidden');
+          document.getElementById('adminsSection').classList.add('hidden');
+          
+          document.getElementById('transactionsSection').classList.remove('hidden');
+          document.getElementById('pageTitle').textContent = 'Deposit & Withdraw';
+          loadTransactions();
+        });
+      }
+    });
+
+    // Mobile sidebar toggle and overlay handling (top-level)
+    (function() {
+      const menuToggle = document.getElementById('menuToggle');
+      const sidebar = document.querySelector('.sidebar');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+      const openMenu = () => {
+        console.debug('Mobile menu: openMenu called');
+        sidebar.classList.add('mobile-open');
+        sidebar.classList.add('active');
+        sidebarOverlay.classList.add('active');
+        document.body.classList.add('no-scroll');
+        if (menuToggle) menuToggle.setAttribute('aria-expanded', 'true');
+      };
+
+      const closeMenu = () => {
+        console.debug('Mobile menu: closeMenu called');
+        if (sidebar) sidebar.classList.remove('mobile-open');
+        if (sidebar) sidebar.classList.remove('active');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+        if (menuToggle) menuToggle.setAttribute('aria-expanded', 'false');
+      };
+
+      if (!menuToggle || !sidebar || !sidebarOverlay) {
+        console.warn('Mobile menu elements missing', { menuToggleExists: !!menuToggle, sidebarExists: !!sidebar, overlayExists: !!sidebarOverlay });
+      } else {
+        try { menuToggle.style.zIndex = 1100; } catch (e) {}
+        console.debug('Mobile menu initialized', { menuToggleExists: !!menuToggle, sidebarExists: !!sidebar });
+
+        menuToggle.addEventListener('click', () => {
+          console.debug('menuToggle clicked', { mobileOpen: sidebar.classList.contains('mobile-open') });
+          if (sidebar.classList.contains('mobile-open')) closeMenu(); else openMenu();
+        });
+
+        sidebarOverlay.addEventListener('click', closeMenu);
+
+        // Close mobile menu when a nav item is tapped (mobile/tablet)
+        document.querySelectorAll('.nav-item').forEach(item => {
+          item.addEventListener('click', () => {
+            if (window.innerWidth <= 900) closeMenu();
+          });
+        });
+
+        // Allow closing with Escape key
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') closeMenu();
+        });
+      }
+    })();
+
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>

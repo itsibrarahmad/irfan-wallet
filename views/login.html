@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login — Bestpro Wallet</title>
+    <link rel="stylesheet" href="/login.css" />
+  </head>
+  <body>
+    <div class="login-wrapper">
+      <div class="login-header">
+        <div class="logo-icon">🎯</div>
+        <h1>Betpro Wallet</h1>
+        <p>Secure Digital Payment Solutions</p>
+      </div>
+
+      <div class="login-card">
+        <h2>Welcome Back</h2>
+        <p class="subtitle">Sign in to your account to access your wallet</p>
+
+        <form id="loginForm">
+          <div id="error" class="error" role="alert" aria-live="polite"></div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <div class="input-wrapper">
+              <input 
+                id="email" 
+                name="email" 
+                type="email" 
+                required 
+                autocomplete="username"
+                placeholder="you@example.com"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <input 
+                id="password" 
+                name="password" 
+                type="password" 
+                required 
+                autocomplete="current-password"
+                placeholder="••••••••"
+              />
+            </div>
+          </div>
+
+          <button id="submitBtn" class="btn" type="submit">
+            <span>Sign In</span>
+          </button>
+        </form>
+
+        <!-- Change Password Section -->
+        <div style="margin-top: 18px; text-align: center;">
+          <button id="toggleChangePassword" class="btn btn-link" type="button">Change Password</button>
+        </div>
+
+        <div id="changePasswordSection" style="display: none; margin-top: 12px;">
+          <h3 style="margin-bottom: 8px;">Change Password</h3>
+          <div id="cpError" class="error" role="alert" aria-live="polite" style="margin-bottom:8px;"></div>
+
+          <div class="form-group">
+            <label for="cpEmail">Email Address</label>
+            <div class="input-wrapper">
+              <input id="cpEmail" name="email" type="email" autocomplete="username" placeholder="you@example.com" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cpCurrentPassword">Current Password</label>
+            <div class="input-wrapper">
+              <input id="cpCurrentPassword" name="currentPassword" type="password" autocomplete="current-password" placeholder="••••••••" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cpNewPassword">New Password</label>
+            <div class="input-wrapper">
+              <input id="cpNewPassword" name="newPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cpConfirmPassword">Confirm New Password</label>
+            <div class="input-wrapper">
+              <input id="cpConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Repeat new password" />
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; justify-content:center; margin-top:8px;">
+            <button id="cpCancel" class="btn btn-secondary" type="button">Cancel</button>
+            <button id="cpSubmit" class="btn btn-primary" type="button">Update Password</button>
+          </div>
+        </div>
+
+        <div class="login-footer">
+          <p>Don't have an account? <a href="/signup">Create one now</a></p>
+        </div>
+
+        <div class="features-list">
+          <h3>Why Bitpro?</h3>
+          <ul>
+            <li>Bank-level security & encryption</li>
+            <li>Lightning-fast transactions</li>
+            <li>24/7 dedicated support</li>
+            <li>Multiple payment methods</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById('loginForm');
+      const errorEl = document.getElementById('error');
+      const submitBtn = document.getElementById('submitBtn');
+      const submitBtnSpan = submitBtn.querySelector('span');
+
+      // Change password elements
+      const toggleChangePassword = document.getElementById('toggleChangePassword');
+      const changePasswordSection = document.getElementById('changePasswordSection');
+      const cpEmail = document.getElementById('cpEmail');
+      const cpCurrentPassword = document.getElementById('cpCurrentPassword');
+      const cpNewPassword = document.getElementById('cpNewPassword');
+      const cpConfirmPassword = document.getElementById('cpConfirmPassword');
+      const cpSubmit = document.getElementById('cpSubmit');
+      const cpCancel = document.getElementById('cpCancel');
+      const cpError = document.getElementById('cpError');
+
+      function showError(message) {
+        errorEl.textContent = message;
+        errorEl.classList.add('show');
+        submitBtn.disabled = false;
+        submitBtnSpan.textContent = 'Sign In';
+      }
+
+      function clearError() {
+        errorEl.textContent = '';
+        errorEl.classList.remove('show');
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearError();
+        submitBtn.disabled = true;
+        submitBtnSpan.textContent = 'Signing in...';
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        if (!email || !password) {
+          showError('Email and password are required.');
+          return;
+        }
+
+        try {
+          const res = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            // Successful login — redirect to dashboard
+            submitBtnSpan.textContent = 'Redirecting...';
+            setTimeout(() => {
+              window.location.href = '/dashboard';
+            }, 500);
+          } else {
+            // Show precise server error
+            showError(data.error || 'Login failed. Please try again.');
+          }
+        } catch (err) {
+          console.error('Login fetch error:', err);
+          showError('Network error. Please check your connection and try again.');
+        }
+      });
+
+      // Clear error when user starts typing
+      document.getElementById('email').addEventListener('input', clearError);
+      document.getElementById('password').addEventListener('input', clearError);
+
+      // Toggle change password form
+      toggleChangePassword.addEventListener('click', () => {
+        if (changePasswordSection.style.display === 'none') {
+          changePasswordSection.style.display = 'block';
+          // Prefill email from login email field
+          cpEmail.value = document.getElementById('email').value || '';
+          toggleChangePassword.textContent = 'Hide';
+        } else {
+          changePasswordSection.style.display = 'none';
+          toggleChangePassword.textContent = 'Change Password';
+        }
+      });
+
+      cpCancel.addEventListener('click', () => {
+        changePasswordSection.style.display = 'none';
+        cpError.textContent = '';
+      });
+
+      function showCpError(msg) {
+        cpError.textContent = msg;
+        cpError.classList.add('show');
+      }
+
+      function clearCpError() {
+        cpError.textContent = '';
+        cpError.classList.remove('show');
+      }
+
+      // Submit change password
+      cpSubmit.addEventListener('click', async () => {
+        clearCpError();
+        const email = cpEmail.value.trim();
+        const currentPassword = cpCurrentPassword.value;
+        const newPassword = cpNewPassword.value;
+        const confirm = cpConfirmPassword.value;
+
+        if (!email || !currentPassword || !newPassword || !confirm) {
+          showCpError('All fields are required.');
+          return;
+        }
+
+        if (newPassword.length < 8) {
+          showCpError('New password must be at least 8 characters.');
+          return;
+        }
+
+        if (newPassword !== confirm) {
+          showCpError('New password and confirmation do not match.');
+          return;
+        }
+
+        cpSubmit.disabled = true;
+        cpSubmit.textContent = 'Updating...';
+
+        try {
+          const res = await fetch('/api/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, currentPassword, newPassword })
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            clearCpError();
+            alert(data.message || 'Password updated successfully.');
+            // hide the section and clear fields
+            cpEmail.value = '';
+            cpCurrentPassword.value = '';
+            cpNewPassword.value = '';
+            cpConfirmPassword.value = '';
+            changePasswordSection.style.display = 'none';
+            toggleChangePassword.textContent = 'Change Password';
+          } else {
+            showCpError(data.error || 'Could not update password.');
+          }
+        } catch (err) {
+          console.error('Change password error:', err);
+          showCpError('Network error. Please try again.');
+        } finally {
+          cpSubmit.disabled = false;
+          cpSubmit.textContent = 'Update Password';
+        }
+      });
+    </script>
+  </body>
+</html>

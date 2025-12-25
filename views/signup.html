@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signup</title>
+  <link rel="stylesheet" href="/signup.css" />
+  <style>
+    /* Success Popup Styles */
+    .success-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      z-index: 9999;
+      min-width: 350px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    .success-popup.hidden {
+      display: none;
+    }
+
+    .success-popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9998;
+    }
+
+    .success-popup-overlay.hidden {
+      display: none;
+    }
+
+    .success-popup-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: #27ae60;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+
+    .success-popup h2 {
+      color: #27ae60;
+      margin: 20px 0 10px;
+      font-size: 24px;
+    }
+
+    .success-popup p {
+      color: #666;
+      margin: 10px 0 30px;
+      font-size: 14px;
+    }
+
+    .success-popup-btn {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 12px 40px;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .success-popup-btn:hover {
+      background: #229954;
+    }
+  </style>
+</head>
+
+<body>
+    <div class="ib-heading-signup">
+        <h1>Welcome to Bitpro Wallet</h1>
+    </div>
+    <div class="ib-sign-up-main">
+  <div class="signup-container">
+    <h1>Create Your Account</h1>
+
+   <form id="signupForm">
+  <div class="form-group">
+    <label>First Name</label>
+    <input type="text" id="firstName" name="firstName" required />
+  </div>
+
+  <div class="form-group">
+    <label>Last Name</label>
+    <input type="text" id="lastName" name="lastName" required />
+  </div>
+
+  <div class="form-group">
+    <label>Email</label>
+    <input type="email" id="email" name="email" required />
+    <small id="emailError" class="error-message"></small>
+  </div>
+
+  <div class="form-group">
+    <label>Phone Number</label>
+    <input type="text" id="phone" name="phone" maxlength="11" required />
+  </div>
+
+  <div class="form-group">
+    <label>Easypaisa Number</label>
+    <input type="text" id="easypaisa" name="easypaisa" maxlength="11" required />
+  </div>
+
+  <div class="form-group">
+    <label>Password</label>
+    <input type="password" id="password" name="password" required />
+  </div>
+
+  <button type="submit" class="btn">Create Account</button>
+</form>
+<div><p style="text-align: center;">Already have an account? <a href="/login">Login</a> here</p></div>
+</div>
+        </div>
+
+    <!-- Success Popup -->
+    <div id="successOverlay" class="success-popup-overlay hidden"></div>
+    <div id="successPopup" class="success-popup hidden">
+      <div class="success-popup-icon">✓</div>
+      <h2>Registration Successful!</h2>
+      <p>Your account has been created successfully.</p>
+      <p>Redirecting to login page...</p>
+    </div>
+
+    <script>
+      document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = {
+          firstName: document.getElementById('firstName').value,
+          lastName: document.getElementById('lastName').value,
+          email: document.getElementById('email').value,
+          phone: document.getElementById('phone').value,
+          easypaisa: document.getElementById('easypaisa').value,
+          password: document.getElementById('password').value
+        };
+
+        try {
+          const response = await fetch('/signup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            // Show success popup
+            showSuccessPopup();
+            
+            // Redirect to login after 2.5 seconds
+            setTimeout(() => {
+              window.location.href = '/login';
+            }, 2500);
+          } else {
+            alert('Signup failed: ' + (data.error || 'Unknown error'));
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred during signup. Please try again.');
+        }
+      });
+
+      function showSuccessPopup() {
+        const overlay = document.getElementById('successOverlay');
+        const popup = document.getElementById('successPopup');
+        overlay.classList.remove('hidden');
+        popup.classList.remove('hidden');
+      }
+    </script>
+</body>
+</html>

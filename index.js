@@ -10,6 +10,7 @@ const connectDB = require("./config/db");
 const User = require("./models/User");
 const Transaction = require("./models/Transaction");
 const Notification = require("./models/Notification");
+const MongoStore = require("connect-mongo");
 // let dbConnected = false;
 
 // connectDB().then(() => {
@@ -29,12 +30,26 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(bodyParser.json({ limit: '10mb' }));
 
 // Session middleware
+// app.use(session({
+//   secret: "your-secret-key-change-this",
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24 hours
+// }));
+
+
 app.use(session({
   secret: "your-secret-key-change-this",
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URL,
+    ttl: 24 * 60 * 60, // 1 day in seconds
+    autoRemove: 'native'
+  }),
   cookie: { maxAge: 1000 * 60 * 60 * 24 } // 24 hours
 }));
+
 
 // Static folder for CSS
 app.use(express.static(path.join(__dirname, "style")));

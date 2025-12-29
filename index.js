@@ -38,7 +38,7 @@ app.use(bodyParser.json({ limit: '10mb' }));
 
 
 app.use(session({
-  secret: "your-secret-key-change-this",
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
@@ -616,7 +616,7 @@ app.patch('/api/notifications/mark-type', isAuthenticated, async (req, res) => {
 });
 
 
-// 
+
 const startServer = async () => {
   try {
     await connectDB(); // wait for MongoDB connection
@@ -630,3 +630,5 @@ const startServer = async () => {
 };
 
 startServer();
+
+

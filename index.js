@@ -22,8 +22,7 @@ const MongoStore = require("connect-mongo");
 // });
 
 const app = express();
-const PORT = 3000;
-
+const PORT = process.env.PORT || 3000;
 // Middlewares
 // Increase limits to allow base64 screenshot payloads from the client
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
@@ -616,18 +615,17 @@ app.patch('/api/notifications/mark-type', isAuthenticated, async (req, res) => {
   }
 });
 
-// Start server
-// app.listen(PORT, () => {
-//   console.log(`🚀 Server running at http://localhost:${PORT}`);
-// });
+
+// 
 const startServer = async () => {
   try {
-    await connectDB();   // ⏳ wait for MongoDB
-    app.listen(process.env.PORT || 3000, () => {
-      console.log("🚀 Server started & MongoDB connected");
+    await connectDB(); // wait for MongoDB connection
+    app.listen(PORT, () => {
+      console.log(`🚀 Server started & MongoDB connected on port ${PORT}`);
     });
   } catch (err) {
     console.error("❌ Server failed to start because DB failed:", err.message);
+    process.exit(1); // exit so Railway knows the app failed
   }
 };
 

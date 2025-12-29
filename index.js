@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
@@ -9,15 +10,15 @@ const connectDB = require("./config/db");
 const User = require("./models/User");
 const Transaction = require("./models/Transaction");
 const Notification = require("./models/Notification");
-let dbConnected = false;
+// let dbConnected = false;
 
-connectDB().then(() => {
-  dbConnected = true;
-  console.log("✅ Database connection successful");
-}).catch((err) => {
-  console.error("❌ Database connection failed:", err.message);
-  console.error("⚠️ App will still run but database operations will fail");
-});
+// connectDB().then(() => {
+//   dbConnected = true;
+//   console.log("✅ Database connection successful");
+// }).catch((err) => {
+//   console.error("❌ Database connection failed:", err.message);
+//   console.error("⚠️ App will still run but database operations will fail");
+// });
 
 const app = express();
 const PORT = 3000;
@@ -601,6 +602,18 @@ app.patch('/api/notifications/mark-type', isAuthenticated, async (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`🚀 Server running at http://localhost:${PORT}`);
+// });
+const startServer = async () => {
+  try {
+    await connectDB();   // ⏳ wait for MongoDB
+    app.listen(process.env.PORT || 3000, () => {
+      console.log("🚀 Server started & MongoDB connected");
+    });
+  } catch (err) {
+    console.error("❌ Server failed to start because DB failed:", err.message);
+  }
+};
+
+startServer();

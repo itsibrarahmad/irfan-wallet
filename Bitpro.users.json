@@ -1,0 +1,118 @@
+[{
+  "_id": {
+    "$oid": "6936f0fa35411d9acc4c52c6"
+  },
+  "firstName": "ibrar",
+  "lastName": "Ahmad",
+  "email": "itsibrarahmad@gmail.com",
+  "phone": "03465177061",
+  "easypaisa": "03465177061",
+  "password": "$2b$10$s.Pwx6msHtOkgv.UbYaVV.ScSDxN8EzZxHtoi3uaMNnpJYh3lsFEG",
+  "__v": 0,
+  "role": "user",
+  "isActive": true
+},
+{
+  "_id": {
+    "$oid": "6936f3027b5fb3874744b81b"
+  },
+  "firstName": "ibrar",
+  "lastName": "Ahmad",
+  "email": "zaidahmad@gmail.com",
+  "phone": "03465177061",
+  "easypaisa": "03465177061",
+  "password": "$2b$10$NYgMZrcIPMocRJN/180UE.Gd6NUamnyF74IfB.UBIFvFYOfcpCI8u",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6936f36be86387f1d6d3785d"
+  },
+  "firstName": "Abbas",
+  "lastName": "Ahmad",
+  "email": "itsabbasahmad@gmail.com",
+  "phone": "03348078934",
+  "easypaisa": "03348078934",
+  "password": "$2b$10$aQK3LN8IGAek9RROJoPDcuee5r/BS7xICXhVxQVAknOnFdzs8IIgW",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "693806036665f1aa6d12e473"
+  },
+  "firstName": "irfan",
+  "lastName": "Ahmad",
+  "email": "adnan@gamil.com",
+  "phone": "+92 346 517",
+  "easypaisa": "0346 517764",
+  "password": "$2b$10$PRmfjIH.Hv2JTMbMyZh3dumAOmt13LmdJ0DIdYntlf2rVc3psssKW",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "693845368182c608fbc07843"
+  },
+  "firstName": "Irfan",
+  "lastName": "Khan",
+  "email": "irfan@gmail.com",
+  "phone": "03001234567",
+  "easypaisa": "03001234567",
+  "password": "$2b$10$s.Pwx6msHtOkgv.UbYaVV.ScSDxN8EzZxHtoi3uaMNnpJYh3lsFEG",
+  "role": "admin",
+  "isActive": true
+},
+{
+  "_id": {
+    "$oid": "693a8bce2c7a78645b164ea5"
+  },
+  "firstName": "khan",
+  "lastName": "Ahmad",
+  "email": "jon@gmail.com",
+  "phone": "03348078934",
+  "easypaisa": "03348078934",
+  "role": "user",
+  "password": "$2b$10$DTl97IIInbq6/Td0AgejfOrgf3HnbhIGyqnq3xC.ujT1Ekm0Wtqbq",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "693abab8ebf502d5818b00f7"
+  },
+  "firstName": "adil",
+  "lastName": "khan",
+  "email": "adil@gmail.com",
+  "phone": "0330 333982",
+  "easypaisa": "0330 333982",
+  "role": "user",
+  "password": "$2b$10$lEeEYJWV1iGfSxScTwLooOmXRO0TTbmk2Jc8p1lxnOxi1Wji703zK",
+  "isActive": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "693abb6dc2a90bf70ab4801f"
+  },
+  "firstName": "adil1",
+  "lastName": "khan",
+  "email": "adil1@gmail.com",
+  "phone": "0330 333982",
+  "easypaisa": "0330 333982",
+  "role": "user",
+  "password": "$2b$10$F0jcMEo8lDhlS/uFTXI7Iee4VWUEDm51/cp46YviEZnqUJaOnWP12",
+  "isActive": true,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "693abb96c2a90bf70ab48025"
+  },
+  "firstName": "sudais",
+  "lastName": "khan",
+  "email": "sudaius@gmail.com",
+  "phone": "03348078934",
+  "easypaisa": "03348078934",
+  "role": "user",
+  "password": "$2b$10$wr2CcCLluT8jANnx52FX1.BqCc8W0R3QP7Ar/8Q0kizTTh5rpVkle",
+  "isActive": true,
+  "__v": 0
+}]

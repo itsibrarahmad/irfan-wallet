@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/Bitpro");
+    await mongoose.connect("mongodb+srv://itsibrarahmad_db_user:1234567890@cluster0.wiui2xk.mongodb.net/?appName=Cluster0");
     console.log("✅ MongoDB connected");
     return Promise.resolve();
   } catch (error) {
